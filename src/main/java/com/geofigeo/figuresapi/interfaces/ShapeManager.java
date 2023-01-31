@@ -1,7 +1,8 @@
 package com.geofigeo.figuresapi.interfaces;
 
-import com.geofigeo.figuresapi.dtos.AddShapeDto;
+import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
+import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
 
 public interface ShapeManager {
-    public void save(AddShapeDto addShapeDto);
+    public ShapeCreatedResponseDto save(AddShapeRequestDto addShapeDto);
 }
