@@ -2,6 +2,7 @@ package com.geofigeo.figuresapi.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -13,12 +14,13 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     @Bean
     public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
         UserDetails user = User.withUsername("user")
                 .password(passwordEncoder.encode("password"))
-                .roles("USER")
+                .roles("USER", "CREATOR")
                 .build();
 
         UserDetails admin = User.withUsername("admin")
@@ -33,7 +35,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .anyRequest()
-                .permitAll()
+                .authenticated()
                 .and()
                 .csrf().disable()
                 .headers().frameOptions().disable()
