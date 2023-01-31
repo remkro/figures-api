@@ -1,6 +1,7 @@
 package com.geofigeo.figuresapi.controllers;
 
-import com.geofigeo.figuresapi.dtos.AddShapeDto;
+import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
+import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
 import com.geofigeo.figuresapi.interfaces.ShapeManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +17,8 @@ public class FigureController {
     private final ShapeManager shapeManager;
 
     @PostMapping
-    public ResponseEntity<String> add(@RequestBody AddShapeDto addShapeDto) {
-        shapeManager.save(addShapeDto);
-        return ResponseEntity.ok("ok!");
+    public ResponseEntity<ShapeCreatedResponseDto> add(@RequestBody AddShapeRequestDto addShapeRequestDto   ) {
+        ShapeCreatedResponseDto shapeSaveResponse = shapeManager.save(addShapeRequestDto);
+        return ResponseEntity.ok(shapeSaveResponse);
     }
 }

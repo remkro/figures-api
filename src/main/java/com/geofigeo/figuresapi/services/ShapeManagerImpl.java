@@ -1,6 +1,7 @@
 package com.geofigeo.figuresapi.services;
 
-import com.geofigeo.figuresapi.dtos.AddShapeDto;
+import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
+import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
 import com.geofigeo.figuresapi.exceptions.ShapeNotSupportedException;
 import com.geofigeo.figuresapi.interfaces.Manageable;
 import com.geofigeo.figuresapi.interfaces.ShapeManager;
@@ -18,17 +19,20 @@ public class ShapeManagerImpl implements ShapeManager {
     private static final Logger logger = LoggerFactory.getLogger(ShapeManagerImpl.class);
 
     @Override
-    public void save(AddShapeDto addShapeDto) {
+    public ShapeCreatedResponseDto save(AddShapeRequestDto addShapeRequestDto) {
         String shape = null;
+        ShapeCreatedResponseDto responseDto = null;
         for (Manageable manager : managers) {
-            if(addShapeDto.getType().equalsIgnoreCase(manager.getShapeName())) {
+            if(addShapeRequestDto.getType().equalsIgnoreCase(manager.getShapeName())) {
                 shape = manager.getShapeName();
                 logger.info("Adding shape: " + shape);
-                manager.save(addShapeDto);
+                responseDto = manager.save(addShapeRequestDto);
             }
         }
 
         if(shape == null)
             throw new ShapeNotSupportedException("Shape not supported!");
+
+        return responseDto;
     }
 }

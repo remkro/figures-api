@@ -1,6 +1,7 @@
 package com.geofigeo.figuresapi.services;
 
-import com.geofigeo.figuresapi.dtos.AddShapeDto;
+import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
+import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
 import com.geofigeo.figuresapi.entities.Square;
 import com.geofigeo.figuresapi.interfaces.Manageable;
 import com.geofigeo.figuresapi.repositories.SquareRepository;
@@ -18,8 +19,24 @@ public class SquareManager implements Manageable {
     }
 
     @Override
-    public void save(AddShapeDto addShapeDto) {
-        Square square = new Square(addShapeDto.getParams().get(0));
-        squareRepository.save(square);
+    public ShapeCreatedResponseDto save(AddShapeRequestDto addShapeRequestDto) {
+        Square square = new Square(addShapeRequestDto.getParams().get(0));
+        Square persistedSquare = squareRepository.saveAndFlush(square);
+        return mapSquareToShapeCreatedResponseDto(persistedSquare);
+    }
+
+    private ShapeCreatedResponseDto mapSquareToShapeCreatedResponseDto(Square square) {
+        ShapeCreatedResponseDto responseDto = createPartialShapeCreatedResponse(square);
+        responseDto.setArea(calculateArea(square.getSide()));
+        responseDto.setPerimeter(calculatePerimeter(square.getSide()));
+        return responseDto;
+    }
+
+    private double calculateArea(double side) {
+        return side * side;
+    }
+
+    private double calculatePerimeter(double side) {
+        return 4 * side;
     }
 }
