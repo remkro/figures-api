@@ -2,7 +2,12 @@ package com.geofigeo.figuresapi.interfaces;
 
 import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
 import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
+import com.geofigeo.figuresapi.entities.Shape;
+
+import java.util.List;
 
 public interface ShapeManager {
-    public ShapeCreatedResponseDto save(AddShapeRequestDto addShapeDto);
+    ShapeCreatedResponseDto save(AddShapeRequestDto addShapeDto);
+    List<Shape> getAll();
+    List<Shape> getFiltered(String type, Double areaFrom, Double areaTo, Double perimeterFrom, Double perimeterTo);
 }
