@@ -24,16 +24,15 @@ public class ShapeManagerImpl implements ShapeManager {
     private static final Logger logger = LoggerFactory.getLogger(ShapeManagerImpl.class);
 
     @Override
-    public ShapeCreatedResponseDto save(AddShapeRequestDto addShapeRequestDto) {
+    public ShapeCreatedResponseDto save(AddShapeRequestDto addShapeRequestDto, String username) {
         String shapeName = null;
-        Shape partialShape;
         ShapeCreatedResponseDto responseDto = null;
         for (ShapeHandler handler : handlers) {
             if(addShapeRequestDto.getType().equalsIgnoreCase(handler.getShapeName())) {
                 shapeName = handler.getShapeName();
-                partialShape = createPartialShape(addShapeRequestDto);
+                Shape partialShape = createPartialShape(addShapeRequestDto, username);
                 logger.info("Adding shape: " + shapeName);
-                responseDto = handler.save(partialShape, addShapeRequestDto);
+                responseDto = handler.save(partialShape, addShapeRequestDto, username);
             }
         }
 
@@ -53,13 +52,13 @@ public class ShapeManagerImpl implements ShapeManager {
         return shapeRepository.findAll();
     }
 
-    private Shape createPartialShape(AddShapeRequestDto addShapeRequestDto) {
+    private Shape createPartialShape(AddShapeRequestDto addShapeRequestDto, String username) {
         Shape shape = new Shape();
         shape.setParams(addShapeRequestDto.getParams());
-        shape.setCreatedBy("Anonymous");
+        shape.setCreatedBy(username);
         shape.setCreatedAt(LocalDateTime.now());
         shape.setLastModifiedAt(LocalDateTime.now());
-        shape.setLastModifiedBy("Anonymous");
+        shape.setLastModifiedBy(username);
         return shape;
     }
 }
