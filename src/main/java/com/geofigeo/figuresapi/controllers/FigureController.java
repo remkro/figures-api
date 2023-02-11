@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -24,8 +25,9 @@ public class FigureController {
 
     @PreAuthorize("hasRole('ROLE_CREATOR')")
     @PostMapping
-    public ResponseEntity<ShapeCreatedResponseDto> add(@RequestBody AddShapeRequestDto addShapeRequestDto) {
-        ShapeCreatedResponseDto responseDto = shapeManager.save(addShapeRequestDto);
+    public ResponseEntity<ShapeCreatedResponseDto> add(@RequestBody AddShapeRequestDto addShapeRequestDto,
+                                                       Principal principal) {
+        ShapeCreatedResponseDto responseDto = shapeManager.save(addShapeRequestDto, principal.getName());
         return ResponseEntity.ok(responseDto);
     }
 

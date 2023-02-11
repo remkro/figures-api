@@ -7,5 +7,5 @@ import com.geofigeo.figuresapi.entities.Shape;
 public interface ShapeHandler {
     String getShapeName();
 
-    ShapeCreatedResponseDto save(Shape partialShape, AddShapeRequestDto addShapeDto);
+    ShapeCreatedResponseDto save(Shape partialShape, AddShapeRequestDto addShapeDto, String username);
 }
