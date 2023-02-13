@@ -5,6 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SquareCreatedResponseDto extends ShapeCreatedResponseDto {
-    private double width;
+public class RectangleDto extends ShapeDto {
+    double width;
+    double height;
 }

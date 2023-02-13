@@ -1,7 +1,7 @@
 package com.geofigeo.figuresapi.controllers;
 
-import com.geofigeo.figuresapi.dtos.LoginDto;
-import com.geofigeo.figuresapi.dtos.SignUpDto;
+import com.geofigeo.figuresapi.dtos.LoginRequestDto;
+import com.geofigeo.figuresapi.dtos.SignUpRequestDto;
 import com.geofigeo.figuresapi.dtos.StatusDto;
 import com.geofigeo.figuresapi.dtos.UserDto;
 import com.geofigeo.figuresapi.security.AuthenticationService;
@@ -24,13 +24,13 @@ public class UserController {
     private final UserManager userManager;
 
     @PostMapping("/signin")
-    public ResponseEntity<StatusDto> authenticateUser(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<StatusDto> authenticateUser(@RequestBody LoginRequestDto loginDto) {
         authenticationService.authenticate(loginDto);
         return ResponseEntity.ok(new StatusDto("User " + loginDto.getUsername() + " signed-in successfully!"));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<StatusDto> registerUser(@RequestBody SignUpDto signUpDto) {
+    public ResponseEntity<StatusDto> registerUser(@RequestBody SignUpRequestDto signUpDto) {
         userManager.createUser(signUpDto);
         return ResponseEntity.ok(new StatusDto("User " + signUpDto.getUsername() + " registered successfully"));
     }

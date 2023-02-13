@@ -1,6 +1,6 @@
 package com.geofigeo.figuresapi.services;
 
-import com.geofigeo.figuresapi.dtos.SignUpDto;
+import com.geofigeo.figuresapi.dtos.SignUpRequestDto;
 import com.geofigeo.figuresapi.dtos.UserDto;
 import com.geofigeo.figuresapi.entities.Role;
 import com.geofigeo.figuresapi.entities.User;
@@ -21,7 +21,7 @@ public class UserManager {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
-    public void createUser(SignUpDto signUpDto) {
+    public void createUser(SignUpRequestDto signUpDto) {
         if (userRepository.existsByUsername(signUpDto.getUsername())) {
             throw new UserAlreadyTakenException("Username is already taken!");
         }

@@ -1,8 +1,8 @@
 package com.geofigeo.figuresapi.services;
 
 import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
-import com.geofigeo.figuresapi.dtos.CircleCreatedResponseDto;
-import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
+import com.geofigeo.figuresapi.dtos.CircleDto;
+import com.geofigeo.figuresapi.dtos.ShapeDto;
 import com.geofigeo.figuresapi.entities.Shape;
 import com.geofigeo.figuresapi.entities.User;
 import com.geofigeo.figuresapi.interfaces.ShapeHandler;
@@ -13,6 +13,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -26,9 +29,16 @@ public class CircleHandler implements ShapeHandler {
         return "CIRCLE";
     }
 
+    @Override
+    public Map<String, Integer> getParamsNames() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("Radius", 0);
+        return map;
+    }
+
     @Transactional
     @Override
-    public ShapeCreatedResponseDto save(Shape shape, AddShapeRequestDto request, String username) {
+    public ShapeDto save(Shape shape, AddShapeRequestDto request, String username) {
         shape.setType(getShapeName());
         shape.setArea(calculateArea(request.getParams().get(0)));
         shape.setPerimeter(calculatePerimeter(request.getParams().get(0)));
@@ -36,14 +46,22 @@ public class CircleHandler implements ShapeHandler {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
         user.addShape(persistedCircle);
-        return mapCircleToShapeCreatedResponseDto(persistedCircle);
+        return mapShapeToSpecificDto(persistedCircle);
     }
 
-    private ShapeCreatedResponseDto mapCircleToShapeCreatedResponseDto(Shape circle) {
-        CircleCreatedResponseDto responseDto = new CircleCreatedResponseDto();
-        modelMapper.map(circle, responseDto);
-        responseDto.setRadius(circle.getParams().get(0));
-        return responseDto;
+    @Override
+    public Shape edit(Shape shape) {
+        shape.setArea(calculateArea(shape.getParams().get(0)));
+        shape.setPerimeter(calculatePerimeter(shape.getParams().get(0)));
+        return shape;
+    }
+
+    @Override
+    public ShapeDto mapShapeToSpecificDto(Shape shape) {
+        CircleDto circleDto = new CircleDto();
+        modelMapper.map(shape, circleDto);
+        circleDto.setRadius(shape.getParams().get(0));
+        return circleDto;
     }
 
     private double calculateArea(double radius) {
