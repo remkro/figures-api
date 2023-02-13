@@ -6,6 +6,7 @@ import com.geofigeo.figuresapi.dtos.ShapeChangeDto;
 import com.geofigeo.figuresapi.dtos.ShapeDto;
 import com.geofigeo.figuresapi.entities.Shape;
 import com.geofigeo.figuresapi.interfaces.ShapeManager;
+import com.geofigeo.figuresapi.security.UserSecurity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FigureController {
     private final ShapeManager shapeManager;
+    private final UserSecurity userSecurity;
 
     @PreAuthorize("hasRole('ROLE_CREATOR')")
     @PostMapping
@@ -49,6 +51,7 @@ public class FigureController {
         return ResponseEntity.ok(shapeManager.getSingleShape(id));
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @userSecurity.isResourceCreator(#editShapeRequestDto.id)")
     @PutMapping
     public ResponseEntity<ShapeDto> edit(@RequestBody EditShapeRequestDto editShapeRequestDto,
                                          Principal principal) {
@@ -56,6 +59,7 @@ public class FigureController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('ROLE_ADMIN') or @userSecurity.isResourceCreator(#id)")
     @GetMapping("/{id}/changes")
     public ResponseEntity<List<ShapeChangeDto>> getChanges(@PathVariable long id) {
         List<ShapeChangeDto> shapeChanges = shapeManager.getShapeChanges(id);
