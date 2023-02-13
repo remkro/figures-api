@@ -4,6 +4,7 @@ import com.geofigeo.figuresapi.entities.Change;
 import com.geofigeo.figuresapi.entities.Role;
 import com.geofigeo.figuresapi.entities.Shape;
 import com.geofigeo.figuresapi.entities.User;
+import com.geofigeo.figuresapi.interfaces.ChangeManager;
 import com.geofigeo.figuresapi.interfaces.ShapeHandler;
 import com.geofigeo.figuresapi.repositories.ChangeRepository;
 import com.geofigeo.figuresapi.repositories.UserRepository;
@@ -18,7 +19,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
-public class ChangeManager {
+public class ChangeManagerImpl implements ChangeManager {
     private final ChangeRepository changeRepository;
     private final UserRepository userRepository;
 

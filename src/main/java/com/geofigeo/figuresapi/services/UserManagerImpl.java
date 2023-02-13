@@ -6,6 +6,7 @@ import com.geofigeo.figuresapi.entities.Role;
 import com.geofigeo.figuresapi.entities.User;
 import com.geofigeo.figuresapi.exceptions.EmailAlreadyTakenException;
 import com.geofigeo.figuresapi.exceptions.UserAlreadyTakenException;
+import com.geofigeo.figuresapi.interfaces.UserManager;
 import com.geofigeo.figuresapi.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserManager {
+public class UserManagerImpl implements UserManager {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
