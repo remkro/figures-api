@@ -1,8 +1,8 @@
 package com.geofigeo.figuresapi.entities;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,7 +26,7 @@ public class Shape {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String type;
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Double> params = new ArrayList<>(2);
     @Version
     private int version;

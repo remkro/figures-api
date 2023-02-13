@@ -1,8 +1,8 @@
 package com.geofigeo.figuresapi.services;
 
 import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
-import com.geofigeo.figuresapi.dtos.RectangleCreatedResponseDto;
-import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
+import com.geofigeo.figuresapi.dtos.RectangleDto;
+import com.geofigeo.figuresapi.dtos.ShapeDto;
 import com.geofigeo.figuresapi.entities.Shape;
 import com.geofigeo.figuresapi.entities.User;
 import com.geofigeo.figuresapi.interfaces.ShapeHandler;
@@ -14,7 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -28,9 +29,17 @@ public class RectangleHandler implements ShapeHandler {
         return "RECTANGLE";
     }
 
+    @Override
+    public Map<String, Integer> getParamsNames() {
+        Map<String, Integer> map = new HashMap<>();
+        map.put("Width", 0);
+        map.put("Height", 1);
+        return map;
+    }
+
     @Transactional
     @Override
-    public ShapeCreatedResponseDto save(Shape shape, AddShapeRequestDto addShapeRequestDto, String username) {
+    public ShapeDto save(Shape shape, AddShapeRequestDto addShapeRequestDto, String username) {
         shape.setType(getShapeName());
         shape.setArea(calculateArea(
                 addShapeRequestDto.getParams().get(0),
@@ -44,15 +53,29 @@ public class RectangleHandler implements ShapeHandler {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
         user.addShape(persistedRectangle);
-        return mapRectangleToShapeCreatedResponseDto(persistedRectangle);
+        return mapShapeToSpecificDto(persistedRectangle);
     }
 
-    private ShapeCreatedResponseDto mapRectangleToShapeCreatedResponseDto(Shape rectangle) {
-        RectangleCreatedResponseDto responseDto = new RectangleCreatedResponseDto();
-        modelMapper.map(rectangle, responseDto);
-        responseDto.setWidth(rectangle.getParams().get(0));
-        responseDto.setHeight(rectangle.getParams().get(1));
-        return responseDto;
+    @Override
+    public Shape edit(Shape shape) {
+        shape.setArea(calculateArea(
+                shape.getParams().get(0),
+                shape.getParams().get(1)
+        ));
+        shape.setPerimeter(calculatePerimeter(
+                shape.getParams().get(0),
+                shape.getParams().get(1)
+        ));
+        return shape;
+    }
+
+    @Override
+    public ShapeDto mapShapeToSpecificDto(Shape shape) {
+        RectangleDto rectangleDto = new RectangleDto();
+        modelMapper.map(shape, rectangleDto);
+        rectangleDto.setWidth(shape.getParams().get(0));
+        rectangleDto.setHeight(shape.getParams().get(1));
+        return rectangleDto;
     }
 
     private double calculateArea(double sideA, double sideB) {
@@ -60,6 +83,6 @@ public class RectangleHandler implements ShapeHandler {
     }
 
     private double calculatePerimeter(double sideA, double sideB) {
-        return 4 * (sideA + sideB);
+        return 2 * (sideA + sideB);
     }
 }

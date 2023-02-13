@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class CircleCreatedResponseDto extends ShapeCreatedResponseDto {
+public class CircleDto extends ShapeDto {
     private double radius;
 }

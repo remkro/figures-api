@@ -3,7 +3,7 @@ package com.geofigeo.figuresapi.dtos;
 import lombok.Data;
 
 @Data
-public class SignUpDto {
+public class SignUpRequestDto {
     private String firstName;
     private String lastName;
     private String username;

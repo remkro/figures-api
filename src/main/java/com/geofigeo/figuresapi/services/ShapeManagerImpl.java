@@ -1,17 +1,25 @@
 package com.geofigeo.figuresapi.services;
 
 import com.geofigeo.figuresapi.dtos.AddShapeRequestDto;
-import com.geofigeo.figuresapi.dtos.ShapeCreatedResponseDto;
+import com.geofigeo.figuresapi.dtos.EditShapeRequestDto;
+import com.geofigeo.figuresapi.dtos.ShapeChangeDto;
+import com.geofigeo.figuresapi.dtos.ShapeDto;
+import com.geofigeo.figuresapi.entities.Change;
 import com.geofigeo.figuresapi.entities.Shape;
 import com.geofigeo.figuresapi.exceptions.ShapeNotSupportedException;
 import com.geofigeo.figuresapi.interfaces.ShapeHandler;
 import com.geofigeo.figuresapi.interfaces.ShapeManager;
+import com.geofigeo.figuresapi.repositories.ChangeRepository;
 import com.geofigeo.figuresapi.repositories.ShapeRepository;
+import com.geofigeo.figuresapi.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,29 +28,60 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ShapeManagerImpl implements ShapeManager {
     private final ShapeRepository shapeRepository;
+    private final ChangeRepository changeRepository;
     private final List<ShapeHandler> handlers;
+    private final ModelMapper modelMapper;
+    private final ChangeManager changeManager;
     private static final Logger logger = LoggerFactory.getLogger(ShapeManagerImpl.class);
 
     @Override
-    public ShapeCreatedResponseDto save(AddShapeRequestDto addShapeRequestDto, String username) {
-        String shapeName = null;
-        ShapeCreatedResponseDto responseDto = null;
-        for (ShapeHandler handler : handlers) {
-            if(addShapeRequestDto.getType().equalsIgnoreCase(handler.getShapeName())) {
-                shapeName = handler.getShapeName();
-                Shape partialShape = createPartialShape(addShapeRequestDto, username);
-                logger.info("Adding shape: " + shapeName);
-                responseDto = handler.save(partialShape, addShapeRequestDto, username);
-            }
+    public ShapeDto save(AddShapeRequestDto addShapeRequestDto, String username) {
+        ShapeHandler handler = getHandler(addShapeRequestDto.getType());
+        Shape partialShape = createPartialShape(addShapeRequestDto, username);
+        logger.info("Adding shape: " + addShapeRequestDto.getType());
+        return handler.save(partialShape, addShapeRequestDto, username);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ShapeDto getSingleShape(long id) {
+        if (!shapeRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shape not found!");
         }
-
-        if(shapeName == null)
-            throw new ShapeNotSupportedException("Shape not supported!");
-
-        return responseDto;
+        Shape shape = shapeRepository.findById(id).get();
+        ShapeHandler handler = getHandler(shape.getType());
+        return handler.mapShapeToSpecificDto(shape);
     }
 
     @Transactional
+    @Override
+    public ShapeDto editSingleShape(EditShapeRequestDto editShapeDto, String username) {
+        if (!shapeRepository.existsById(editShapeDto.getId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Shape not found!");
+        }
+
+        Shape shape = shapeRepository.findById(editShapeDto.getId()).get();
+        List<Double> oldParams = shape.getParams();
+        shape.setParams(editShapeDto.getParams());
+        shape.setLastModifiedBy(username);
+        shape.setLastModifiedAt(LocalDateTime.now());
+
+        ShapeHandler handler = getHandler(shape.getType());
+        shape = handler.edit(shape);
+        Shape editedShape = shapeRepository.saveAndFlush(shape);
+        changeManager.save(editedShape, username, oldParams, handler);
+
+        return handler.mapShapeToSpecificDto(editedShape);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ShapeChangeDto> getShapeChanges(long id) {
+        List<Change> changes = changeRepository.getAllByShapeId(id);
+        return changes.stream().map(c -> modelMapper.map(c, ShapeChangeDto.class)).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<Shape> getFiltered(String type, Double areaFrom, Double areaTo, Double perimeterFrom, Double perimeterTo) {
         return shapeRepository.getFiltered(type, areaFrom, areaTo, perimeterFrom, perimeterTo);
     }
@@ -50,6 +89,11 @@ public class ShapeManagerImpl implements ShapeManager {
     @Transactional(readOnly = true)
     public List<Shape> getAll() {
         return shapeRepository.findAll();
+    }
+
+    private ShapeHandler getHandler(String shapeName) {
+        return handlers.stream().filter(h -> h.getShapeName().equalsIgnoreCase(shapeName)).findFirst()
+                .orElseThrow(() -> new ShapeNotSupportedException("Shape not supported! Handler not found!"));
     }
 
     private Shape createPartialShape(AddShapeRequestDto addShapeRequestDto, String username) {

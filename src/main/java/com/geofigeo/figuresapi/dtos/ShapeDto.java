@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class ShapeCreatedResponseDto {
+public class ShapeDto {
     private long id;
     private String type;
     private String createdBy;
