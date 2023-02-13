@@ -1,7 +1,7 @@
 package com.geofigeo.figuresapi.security;
 
-import com.geofigeo.figuresapi.entities.Shape;
-import com.geofigeo.figuresapi.repositories.ShapeRepository;
+import com.geofigeo.figuresapi.entity.Shape;
+import com.geofigeo.figuresapi.repository.ShapeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

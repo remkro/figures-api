@@ -1,6 +1,6 @@
 package com.geofigeo.figuresapi.security;
 
-import com.geofigeo.figuresapi.dtos.LoginRequestDto;
+import com.geofigeo.figuresapi.dto.LoginRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

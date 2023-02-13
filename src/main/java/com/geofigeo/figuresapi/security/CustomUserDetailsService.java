@@ -1,7 +1,7 @@
 package com.geofigeo.figuresapi.security;
 
-import com.geofigeo.figuresapi.entities.User;
-import com.geofigeo.figuresapi.repositories.UserRepository;
+import com.geofigeo.figuresapi.entity.User;
+import com.geofigeo.figuresapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
