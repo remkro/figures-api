@@ -32,7 +32,7 @@ public class CircleHandler implements ShapeHandler {
     @Override
     public Map<String, Integer> getParamsNames() {
         Map<String, Integer> map = new HashMap<>();
-        map.put("Radius", 0);
+        map.put("radius", 0);
         return map;
     }
 
@@ -42,6 +42,10 @@ public class CircleHandler implements ShapeHandler {
         shape.setType(getShapeName());
         shape.setArea(calculateArea(request.getParams().get(0)));
         shape.setPerimeter(calculatePerimeter(request.getParams().get(0)));
+        getParamsNames().forEach((key, value) -> shape.addProperty(key, request.getParams().get(value)));
+//        for (Map.Entry<String, Integer> entry : getParamsNames().entrySet()) {
+//            shape.addProperty(entry.getKey(), request.getParams().get(entry.getValue()));
+//        }
         Shape persistedCircle = shapeRepository.saveAndFlush(shape);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
@@ -51,8 +55,8 @@ public class CircleHandler implements ShapeHandler {
 
     @Override
     public Shape edit(Shape shape) {
-        shape.setArea(calculateArea(shape.getParams().get(0)));
-        shape.setPerimeter(calculatePerimeter(shape.getParams().get(0)));
+        shape.setArea(calculateArea(shape.getProperties().get("radius")));
+        shape.setPerimeter(calculatePerimeter(shape.getProperties().get("radius")));
         return shape;
     }
 
@@ -60,7 +64,7 @@ public class CircleHandler implements ShapeHandler {
     public ShapeDto mapShapeToSpecificDto(Shape shape) {
         CircleDto circleDto = new CircleDto();
         modelMapper.map(shape, circleDto);
-        circleDto.setRadius(shape.getParams().get(0));
+        circleDto.setRadius(shape.getProperties().get("radius"));
         return circleDto;
     }
 

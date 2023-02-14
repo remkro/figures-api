@@ -32,16 +32,16 @@ public class SquareHandler implements ShapeHandler {
     @Override
     public Map<String, Integer> getParamsNames() {
         Map<String, Integer> map = new HashMap<>();
-        map.put("Height", 0);
+        map.put("height", 0);
         return map;
     }
 
     @Transactional
     @Override
-    public ShapeDto save(Shape shape, AddShapeRequestDto addShapeRequestDto, String username) {
+    public ShapeDto save(Shape shape, AddShapeRequestDto request, String username) {
         shape.setType(this.getShapeName());
-        shape.setArea(calculateArea(shape.getParams().get(0)));
-        shape.setPerimeter(calculatePerimeter(shape.getParams().get(0)));
+        shape.setArea(calculateArea(request.getParams().get(0)));
+        shape.setPerimeter(calculatePerimeter(request.getParams().get(0)));
         Shape persistedSquare = shapeRepository.saveAndFlush(shape);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
@@ -51,8 +51,8 @@ public class SquareHandler implements ShapeHandler {
 
     @Override
     public Shape edit(Shape shape) {
-        shape.setArea(calculateArea(shape.getParams().get(0)));
-        shape.setPerimeter(calculatePerimeter(shape.getParams().get(0)));
+        shape.setArea(calculateArea(shape.getProperties().get("height")));
+        shape.setPerimeter(calculatePerimeter(shape.getProperties().get("height")));
         return shape;
     }
 
@@ -60,7 +60,7 @@ public class SquareHandler implements ShapeHandler {
     public ShapeDto mapShapeToSpecificDto(Shape shape) {
         SquareDto squareDto = new SquareDto();
         modelMapper.map(shape, squareDto);
-        squareDto.setWidth(shape.getParams().get(0));
+        squareDto.setHeight(shape.getProperties().get("height"));
         return squareDto;
     }
 

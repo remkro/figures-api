@@ -32,23 +32,24 @@ public class RectangleHandler implements ShapeHandler {
     @Override
     public Map<String, Integer> getParamsNames() {
         Map<String, Integer> map = new HashMap<>();
-        map.put("Width", 0);
-        map.put("Height", 1);
+        map.put("width", 0);
+        map.put("height", 1);
         return map;
     }
 
     @Transactional
     @Override
-    public ShapeDto save(Shape shape, AddShapeRequestDto addShapeRequestDto, String username) {
+    public ShapeDto save(Shape shape, AddShapeRequestDto request, String username) {
         shape.setType(getShapeName());
         shape.setArea(calculateArea(
-                addShapeRequestDto.getParams().get(0),
-                addShapeRequestDto.getParams().get(1)
+                request.getParams().get(0),
+                request.getParams().get(1)
         ));
         shape.setPerimeter(calculatePerimeter(
-                addShapeRequestDto.getParams().get(0),
-                addShapeRequestDto.getParams().get(1)
+                request.getParams().get(0),
+                request.getParams().get(1)
         ));
+        getParamsNames().forEach((key, value) -> shape.addProperty(key, request.getParams().get(value)));
         Shape persistedRectangle = shapeRepository.saveAndFlush(shape);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
@@ -59,12 +60,12 @@ public class RectangleHandler implements ShapeHandler {
     @Override
     public Shape edit(Shape shape) {
         shape.setArea(calculateArea(
-                shape.getParams().get(0),
-                shape.getParams().get(1)
+                shape.getProperties().get("width"),
+                shape.getProperties().get("height")
         ));
         shape.setPerimeter(calculatePerimeter(
-                shape.getParams().get(0),
-                shape.getParams().get(1)
+                shape.getProperties().get("width"),
+                shape.getProperties().get("height")
         ));
         return shape;
     }
@@ -73,8 +74,8 @@ public class RectangleHandler implements ShapeHandler {
     public ShapeDto mapShapeToSpecificDto(Shape shape) {
         RectangleDto rectangleDto = new RectangleDto();
         modelMapper.map(shape, rectangleDto);
-        rectangleDto.setWidth(shape.getParams().get(0));
-        rectangleDto.setHeight(shape.getParams().get(1));
+        rectangleDto.setWidth(shape.getProperties().get("width"));
+        rectangleDto.setHeight(shape.getProperties().get("height"));
         return rectangleDto;
     }
 
