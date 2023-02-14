@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,7 +23,7 @@ public class ChangeManagerImpl implements ChangeManager {
     private final UserRepository userRepository;
 
     @Transactional
-    public void save(Shape editedShape, String username, List<Double> oldParams, ShapeHandler handler) {
+    public void save(Shape editedShape, String username, Map<String, Double> oldProperties, ShapeHandler handler) {
         Change change = new Change();
         change.setShapeId(editedShape.getId());
         change.setLastModifiedBy(editedShape.getLastModifiedBy());
@@ -35,10 +34,16 @@ public class ChangeManagerImpl implements ChangeManager {
         change.setAuthor(roles.stream().map(Role::getName).toList());
 
         for (Map.Entry<String, Integer> entry : handler.getParamsNames().entrySet()) {
-            change.addChangedValues("old" + entry.getKey(), oldParams.get(entry.getValue()));
-            change.addChangedValues("new" + entry.getKey(), editedShape.getParams().get(entry.getValue()));
+            change.addChangedValues("old" + makeFirstLetterUppercase(entry.getKey()),
+                    oldProperties.get(entry.getKey()));
+            change.addChangedValues("new" + makeFirstLetterUppercase(entry.getKey()),
+                    editedShape.getProperties().get(entry.getKey()));
         }
 
         changeRepository.saveAndFlush(change);
+    }
+
+    private String makeFirstLetterUppercase(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 }

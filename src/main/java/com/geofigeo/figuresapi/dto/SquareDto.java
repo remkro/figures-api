@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SquareDto extends ShapeDto {
-    private double width;
+    private double height;
 }

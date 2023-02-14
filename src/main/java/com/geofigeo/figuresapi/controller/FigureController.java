@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/shapes")
@@ -36,12 +37,9 @@ public class FigureController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<Shape>> getFiltered(@RequestParam(required = false) String type,
-                                                   @RequestParam(required = false) Double areaFrom,
-                                                   @RequestParam(required = false) Double areaTo,
-                                                   @RequestParam(required = false) Double perimeterFrom,
-                                                   @RequestParam(required = false) Double perimeterTo) {
-        return ResponseEntity.ok(shapeManager.getFiltered(type, areaFrom, areaTo, perimeterFrom, perimeterTo));
+    public ResponseEntity<List<ShapeDto>> getFiltered(@RequestParam Map<String,String> searchParams) {
+        List<ShapeDto> filtered = shapeManager.getFilteredShapes(searchParams);
+        return ResponseEntity.ok(filtered);
     }
 
     @GetMapping("/{id}")
