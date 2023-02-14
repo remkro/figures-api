@@ -1,10 +1,6 @@
 package com.geofigeo.figuresapi.entity;
 
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +16,7 @@ import java.util.Map;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "CHANGES")
 public class Change {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +25,13 @@ public class Change {
     private LocalDateTime lastModifiedAt;
     private String lastModifiedBy;
     @ElementCollection
+    @CollectionTable(name = "change_authors", joinColumns = {@JoinColumn(name = "change_id")})
+    @Column(name = "author")
     private List<String> author;
     @ElementCollection
+    @CollectionTable(name = "change_properties", joinColumns = {@JoinColumn(name = "change_id")})
+    @MapKeyColumn(name = "name")
+    @Column(name = "num_value")
     private Map<String, Double> changedValues = new HashMap<>();
 
     public void addChangedValues(String name, Double value) {
