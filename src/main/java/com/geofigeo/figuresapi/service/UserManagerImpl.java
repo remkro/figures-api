@@ -7,7 +7,9 @@ import com.geofigeo.figuresapi.entity.User;
 import com.geofigeo.figuresapi.exception.EmailAlreadyTakenException;
 import com.geofigeo.figuresapi.exception.UserAlreadyTakenException;
 import com.geofigeo.figuresapi.abstraction.UserManager;
+import com.geofigeo.figuresapi.repository.RoleRepository;
 import com.geofigeo.figuresapi.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -19,8 +21,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserManagerImpl implements UserManager {
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+
+    @PostConstruct
+    private void initRoles() {
+        roleRepository.save(new Role("CREATOR"));
+        roleRepository.save(new Role("ADMIN"));
+    }
 
     public void createUser(SignUpRequestDto signUpDto) {
         if (userRepository.existsByUsername(signUpDto.getUsername())) {
@@ -36,7 +45,7 @@ public class UserManagerImpl implements UserManager {
         user.setUsername(signUpDto.getUsername());
         user.setEmail(signUpDto.getEmail());
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
-        user.addRole(new Role("CREATOR"));
+        user.addRole(roleRepository.findByName("CREATOR"));
 
         userRepository.save(user);
     }
