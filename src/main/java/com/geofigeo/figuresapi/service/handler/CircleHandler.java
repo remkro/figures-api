@@ -1,12 +1,16 @@
 package com.geofigeo.figuresapi.service.handler;
 
+import com.geofigeo.figuresapi.abstraction.ChangeManager;
 import com.geofigeo.figuresapi.dto.AddShapeRequestDto;
 import com.geofigeo.figuresapi.dto.CircleDto;
+import com.geofigeo.figuresapi.dto.EditShapeRequestDto;
+import com.geofigeo.figuresapi.dto.ShapeChangeDto;
 import com.geofigeo.figuresapi.dto.ShapeDto;
-import com.geofigeo.figuresapi.entity.Shape;
-import com.geofigeo.figuresapi.entity.User;
+import com.geofigeo.figuresapi.entity.Circle;
 import com.geofigeo.figuresapi.abstraction.ShapeHandler;
-import com.geofigeo.figuresapi.repository.ShapeRepository;
+import com.geofigeo.figuresapi.entity.User;
+import com.geofigeo.figuresapi.exception.ShapeNotFoundException;
+import com.geofigeo.figuresapi.repository.CircleRepository;
 import com.geofigeo.figuresapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -14,15 +18,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class CircleHandler implements ShapeHandler {
-    private final ShapeRepository shapeRepository;
     private final UserRepository userRepository;
+    private final CircleRepository circleRepository;
     private final ModelMapper modelMapper;
+    private final ChangeManager changeManager;
 
     @Override
     public String getShapeName() {
@@ -38,33 +45,65 @@ public class CircleHandler implements ShapeHandler {
 
     @Transactional
     @Override
-    public ShapeDto save(Shape shape, AddShapeRequestDto request, String username) {
-        shape.setType(getShapeName());
-        shape.setArea(calculateArea(request.getParams().get(0)));
-        shape.setPerimeter(calculatePerimeter(request.getParams().get(0)));
-        getParamsNames().forEach((key, value) -> shape.addProperty(key, request.getParams().get(value)));
-//        for (Map.Entry<String, Integer> entry : getParamsNames().entrySet()) {
-//            shape.addProperty(entry.getKey(), request.getParams().get(entry.getValue()));
-//        }
-        Shape persistedCircle = shapeRepository.saveAndFlush(shape);
+    public ShapeDto save(AddShapeRequestDto request, String username) {
+        Circle circle = createCircle(request, username);
+        Circle savedCircle = circleRepository.saveAndFlush(circle);
+        CircleDto circleDto = mapToDto(savedCircle);
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
-        user.addShape(persistedCircle);
-        return mapShapeToSpecificDto(persistedCircle);
+        user.addShape(savedCircle);
+
+        return circleDto;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ShapeDto getSingle(long id) {
+        Circle circle = circleRepository.findById(id)
+                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+        return mapToDto(circle);
+    }
+
+    @Transactional
+    @Override
+    public ShapeDto edit(EditShapeRequestDto request, String username) {
+        Circle circle = circleRepository.findById(request.getId())
+                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+        double oldRadius = circle.getRadius();
+        circle.setRadius(request.getParams().get(0));
+        circle.setLastModifiedAt(LocalDateTime.now());
+        circle.setLastModifiedBy(username);
+        Circle editedCircle = circleRepository.saveAndFlush(circle);
+
+        Map<String, Double> oldProperties = new HashMap<>();
+        oldProperties.put("oldRadius", oldRadius);
+        oldProperties.put("newRadius", editedCircle.getRadius());
+        changeManager.save(editedCircle, username, oldProperties);
+
+        return mapToDto(editedCircle);
     }
 
     @Override
-    public Shape edit(Shape shape) {
-        shape.setArea(calculateArea(shape.getProperties().get("radius")));
-        shape.setPerimeter(calculatePerimeter(shape.getProperties().get("radius")));
-        return shape;
+    public List<ShapeChangeDto> getChanges(long id) {
+        return changeManager.getChanges(id);
     }
 
-    @Override
-    public ShapeDto mapShapeToSpecificDto(Shape shape) {
-        CircleDto circleDto = new CircleDto();
-        modelMapper.map(shape, circleDto);
-        circleDto.setRadius(shape.getProperties().get("radius"));
+    private Circle createCircle(AddShapeRequestDto request, String username) {
+        Circle circle = new Circle();
+        circle.setType(getShapeName());
+        circle.setCreatedBy(username);
+        circle.setCreatedAt(LocalDateTime.now());
+        circle.setLastModifiedAt(LocalDateTime.now());
+        circle.setLastModifiedBy(username);
+        circle.setRadius(request.getParams().get(0));
+        return circle;
+    }
+
+    private CircleDto mapToDto(Circle circle) {
+        CircleDto circleDto = modelMapper.map(circle, CircleDto.class);
+        circleDto.setArea(calculateArea(circle.getRadius()));
+        circleDto.setPerimeter(calculatePerimeter(circle.getRadius()));
         return circleDto;
     }
 

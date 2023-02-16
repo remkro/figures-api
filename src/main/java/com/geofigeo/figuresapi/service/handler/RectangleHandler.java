@@ -1,12 +1,16 @@
 package com.geofigeo.figuresapi.service.handler;
 
+import com.geofigeo.figuresapi.abstraction.ChangeManager;
 import com.geofigeo.figuresapi.dto.AddShapeRequestDto;
+import com.geofigeo.figuresapi.dto.EditShapeRequestDto;
 import com.geofigeo.figuresapi.dto.RectangleDto;
+import com.geofigeo.figuresapi.dto.ShapeChangeDto;
 import com.geofigeo.figuresapi.dto.ShapeDto;
-import com.geofigeo.figuresapi.entity.Shape;
-import com.geofigeo.figuresapi.entity.User;
+import com.geofigeo.figuresapi.entity.Rectangle;
 import com.geofigeo.figuresapi.abstraction.ShapeHandler;
-import com.geofigeo.figuresapi.repository.ShapeRepository;
+import com.geofigeo.figuresapi.entity.User;
+import com.geofigeo.figuresapi.exception.ShapeNotFoundException;
+import com.geofigeo.figuresapi.repository.RectangleRepository;
 import com.geofigeo.figuresapi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -14,15 +18,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class RectangleHandler implements ShapeHandler {
-    private final ShapeRepository shapeRepository;
     private final UserRepository userRepository;
+    private final RectangleRepository rectangleRepository;
     private final ModelMapper modelMapper;
+    private final ChangeManager changeManager;
 
     @Override
     public String getShapeName() {
@@ -39,51 +46,78 @@ public class RectangleHandler implements ShapeHandler {
 
     @Transactional
     @Override
-    public ShapeDto save(Shape shape, AddShapeRequestDto request, String username) {
-        shape.setType(getShapeName());
-        shape.setArea(calculateArea(
-                request.getParams().get(0),
-                request.getParams().get(1)
-        ));
-        shape.setPerimeter(calculatePerimeter(
-                request.getParams().get(0),
-                request.getParams().get(1)
-        ));
-        getParamsNames().forEach((key, value) -> shape.addProperty(key, request.getParams().get(value)));
-        Shape persistedRectangle = shapeRepository.saveAndFlush(shape);
+    public ShapeDto save(AddShapeRequestDto request, String username) {
+        Rectangle rectangle = createRectangle(request, username);
+        Rectangle savedRectangle = rectangleRepository.saveAndFlush(rectangle);
+        RectangleDto rectangleDto = mapToDto(savedRectangle);
+
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
-        user.addShape(persistedRectangle);
-        return mapShapeToSpecificDto(persistedRectangle);
-    }
+        user.addShape(savedRectangle);
 
-    @Override
-    public Shape edit(Shape shape) {
-        shape.setArea(calculateArea(
-                shape.getProperties().get("width"),
-                shape.getProperties().get("height")
-        ));
-        shape.setPerimeter(calculatePerimeter(
-                shape.getProperties().get("width"),
-                shape.getProperties().get("height")
-        ));
-        return shape;
-    }
-
-    @Override
-    public ShapeDto mapShapeToSpecificDto(Shape shape) {
-        RectangleDto rectangleDto = new RectangleDto();
-        modelMapper.map(shape, rectangleDto);
-        rectangleDto.setWidth(shape.getProperties().get("width"));
-        rectangleDto.setHeight(shape.getProperties().get("height"));
         return rectangleDto;
     }
 
-    private double calculateArea(double sideA, double sideB) {
-        return sideA * sideB;
+    @Transactional(readOnly = true)
+    @Override
+    public ShapeDto getSingle(long id) {
+        Rectangle rectangle = rectangleRepository.findById(id)
+                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+        return mapToDto(rectangle);
     }
 
-    private double calculatePerimeter(double sideA, double sideB) {
-        return 2 * (sideA + sideB);
+
+    @Override
+    public ShapeDto edit(EditShapeRequestDto request, String username) {
+        Rectangle rectangle = rectangleRepository.findById(request.getId())
+                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+        double oldWidth = rectangle.getWidth();
+        double oldHeight = rectangle.getHeight();
+        rectangle.setWidth(request.getParams().get(0));
+        rectangle.setHeight(request.getParams().get(1));
+        rectangle.setLastModifiedAt(LocalDateTime.now());
+        rectangle.setLastModifiedBy(username);
+        Rectangle editedRectangle = rectangleRepository.saveAndFlush(rectangle);
+
+        Map<String, Double> oldProperties = new HashMap<>();
+        oldProperties.put("oldWidth", oldWidth);
+        oldProperties.put("newWidth", editedRectangle.getWidth());
+        oldProperties.put("oldHeight", oldHeight);
+        oldProperties.put("newHeight", editedRectangle.getHeight());
+        changeManager.save(editedRectangle, username, oldProperties);
+
+        return mapToDto(editedRectangle);
+    }
+
+    @Override
+    public List<ShapeChangeDto> getChanges(long id) {
+        return changeManager.getChanges(id);
+    }
+
+    private Rectangle createRectangle(AddShapeRequestDto request, String username) {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setType(getShapeName());
+        rectangle.setCreatedBy(username);
+        rectangle.setCreatedAt(LocalDateTime.now());
+        rectangle.setLastModifiedAt(LocalDateTime.now());
+        rectangle.setLastModifiedBy(username);
+        rectangle.setWidth(request.getParams().get(0));
+        rectangle.setHeight(request.getParams().get(1));
+        return rectangle;
+    }
+
+    private RectangleDto mapToDto(Rectangle rectangle) {
+        RectangleDto rectangleDto = modelMapper.map(rectangle, RectangleDto.class);
+        rectangleDto.setArea(calculateArea(rectangle.getWidth(), rectangle.getHeight()));
+        rectangleDto.setPerimeter(calculatePerimeter(rectangle.getWidth(), rectangle.getHeight()));
+        return rectangleDto;
+    }
+
+    private double calculateArea(double width, double height) {
+        return width * height;
+    }
+
+    private double calculatePerimeter(double width, double height) {
+        return 2 * (width + height);
     }
 }

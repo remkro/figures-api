@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
@@ -31,7 +32,8 @@ public class UserManagerImpl implements UserManager {
         roleRepository.save(new Role("ADMIN"));
     }
 
-    public void createUser(SignUpRequestDto signUpDto) {
+    @Transactional
+    public User createUser(SignUpRequestDto signUpDto) {
         if (userRepository.existsByUsername(signUpDto.getUsername())) {
             throw new UserAlreadyTakenException("Username is already taken!");
         }
@@ -47,12 +49,13 @@ public class UserManagerImpl implements UserManager {
         user.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         user.addRole(roleRepository.findByName("CREATOR"));
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public Page<UserDto> getAllUsers(Pageable pageable) {
-        Page<User> all = userRepository.findAll(pageable);
-        return all.map(this::mapUserToUserDto);
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(this::mapUserToUserDto);
     }
 
     private UserDto mapUserToUserDto(User user) {
