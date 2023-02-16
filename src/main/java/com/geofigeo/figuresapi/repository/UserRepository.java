@@ -1,16 +1,17 @@
 package com.geofigeo.figuresapi.repository;
 
-import com.geofigeo.figuresapi.entity.Role;
 import com.geofigeo.figuresapi.entity.User;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, PagingAndSortingRepository<User, Long> {
     Optional<User> findByUsername(String username);
-    Boolean existsByUsername(String username);
-    Boolean existsByEmail(String email);
-    List<Role> getRolesByUsername(String username);
+    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+    boolean existsWithLockingByUsername(String username);
+    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+    boolean existsWithLockingByEmail(String email);
 }

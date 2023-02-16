@@ -34,10 +34,10 @@ public class UserManagerImpl implements UserManager {
 
     @Transactional
     public User createUser(SignUpRequestDto signUpDto) {
-        if (userRepository.existsByUsername(signUpDto.getUsername())) {
+        if (userRepository.existsWithLockingByUsername(signUpDto.getUsername())) {
             throw new UserAlreadyTakenException("Username is already taken!");
         }
-        if (userRepository.existsByEmail(signUpDto.getEmail())) {
+        if (userRepository.existsWithLockingByEmail(signUpDto.getEmail())) {
             throw new EmailAlreadyTakenException("Email is already taken!");
         }
 

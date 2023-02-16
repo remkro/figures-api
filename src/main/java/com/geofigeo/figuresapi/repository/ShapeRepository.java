@@ -9,4 +9,7 @@ import java.util.Optional;
 public interface ShapeRepository extends JpaRepository<Shape, Long> {
     @Query("SELECT s.type FROM Shape s WHERE s.id = ?1")
     Optional<String> getTypeById(long id);
+
+    @Query("SELECT s.createdBy FROM Shape s WHERE s.id = ?1")
+    Optional<String> getCreatedByById(long id);
 }
