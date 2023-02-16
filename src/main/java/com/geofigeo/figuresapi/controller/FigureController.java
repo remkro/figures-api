@@ -4,7 +4,6 @@ import com.geofigeo.figuresapi.dto.AddShapeRequestDto;
 import com.geofigeo.figuresapi.dto.EditShapeRequestDto;
 import com.geofigeo.figuresapi.dto.ShapeChangeDto;
 import com.geofigeo.figuresapi.dto.ShapeDto;
-import com.geofigeo.figuresapi.entity.Shape;
 import com.geofigeo.figuresapi.abstraction.ShapeManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +31,12 @@ public class FigureController {
     @PostMapping
     public ResponseEntity<ShapeDto> add(@RequestBody AddShapeRequestDto addShapeRequestDto,
                                         Principal principal) {
-        ShapeDto responseDto = shapeManager.save(addShapeRequestDto, principal.getName());
+        ShapeDto responseDto = shapeManager.saveShape(addShapeRequestDto, principal.getName());
         return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping()
-    public ResponseEntity<List<ShapeDto>> getFiltered(@RequestParam Map<String,String> searchParams) {
+    public ResponseEntity<List<ShapeDto>> getFiltered(@RequestParam Map<String, String> searchParams) {
         List<ShapeDto> filtered = shapeManager.getFilteredShapes(searchParams);
         return ResponseEntity.ok(filtered);
     }
@@ -51,7 +50,7 @@ public class FigureController {
     @PutMapping
     public ResponseEntity<ShapeDto> edit(@RequestBody EditShapeRequestDto editShapeRequestDto,
                                          Principal principal) {
-        ShapeDto response = shapeManager.editSingleShape(editShapeRequestDto, principal.getName());
+        ShapeDto response = shapeManager.editShape(editShapeRequestDto, principal.getName());
         return ResponseEntity.ok(response);
     }
 
@@ -60,10 +59,5 @@ public class FigureController {
     public ResponseEntity<List<ShapeChangeDto>> getChanges(@PathVariable long id) {
         List<ShapeChangeDto> shapeChanges = shapeManager.getShapeChanges(id);
         return ResponseEntity.ok(shapeChanges);
-    }
-
-    @GetMapping("/all")
-    public ResponseEntity<List<Shape>> getAll() {
-        return ResponseEntity.ok(shapeManager.getAll());
     }
 }

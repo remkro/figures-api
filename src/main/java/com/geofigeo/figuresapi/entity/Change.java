@@ -42,8 +42,4 @@ public class Change {
     @MapKeyColumn(name = "name")
     @Column(name = "num_value")
     private Map<String, Double> changedValues = new HashMap<>();
-
-    public void addChangedValues(String name, Double value) {
-        changedValues.put(name, value);
-    }
 }
