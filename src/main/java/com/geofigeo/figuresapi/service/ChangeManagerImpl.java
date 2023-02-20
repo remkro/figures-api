@@ -33,7 +33,7 @@ public class ChangeManagerImpl implements ChangeManager {
         change.setLastModifiedBy(editedShape.getLastModifiedBy());
         change.setLastModifiedAt(editedShape.getLastModifiedAt());
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
         Set<Role> roles = user.getRoles();
         change.setAuthor(roles.stream().map(Role::getName).toList());
         change.setChangedValues(oldProperties);

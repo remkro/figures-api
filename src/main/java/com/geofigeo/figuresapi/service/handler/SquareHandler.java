@@ -52,7 +52,7 @@ public class SquareHandler implements ShapeHandler {
         SquareDto squareDto = mapToDto(savedSquare);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
         user.addShape(savedSquare);
 
         return squareDto;
@@ -62,14 +62,14 @@ public class SquareHandler implements ShapeHandler {
     @Override
     public ShapeDto getSingle(long id) {
         Square square = squareRepository.findById(id)
-                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+                .orElseThrow(() -> new ShapeNotFoundException("SHAPE_NOT_FOUND"));
         return mapToDto(square);
     }
 
     @Override
     public ShapeDto edit(EditShapeRequestDto request, String username) {
         Square square = squareRepository.findById(request.getId())
-                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+                .orElseThrow(() -> new ShapeNotFoundException("SHAPE_NOT_FOUND"));
         double oldHeight = square.getHeight();
         square.setHeight(request.getParams().get(0));
         square.setLastModifiedAt(LocalDateTime.now());

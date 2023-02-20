@@ -52,7 +52,7 @@ public class CircleHandler implements ShapeHandler {
         CircleDto circleDto = mapToDto(savedCircle);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
         user.addShape(savedCircle);
 
         return circleDto;
@@ -62,7 +62,7 @@ public class CircleHandler implements ShapeHandler {
     @Override
     public ShapeDto getSingle(long id) {
         Circle circle = circleRepository.findById(id)
-                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+                .orElseThrow(() -> new ShapeNotFoundException("SHAPE_NOT_FOUND"));
         return mapToDto(circle);
     }
 
@@ -70,7 +70,7 @@ public class CircleHandler implements ShapeHandler {
     @Override
     public ShapeDto edit(EditShapeRequestDto request, String username) {
         Circle circle = circleRepository.findById(request.getId())
-                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+                .orElseThrow(() -> new ShapeNotFoundException("SHAPE_NOT_FOUND"));
         double oldRadius = circle.getRadius();
         circle.setRadius(request.getParams().get(0));
         circle.setLastModifiedAt(LocalDateTime.now());

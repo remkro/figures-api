@@ -77,12 +77,12 @@ public class ShapeManagerImpl implements ShapeManager {
 
     private ShapeHandler getHandler(String type) {
         return handlers.stream().filter(h -> h.getShapeName().equalsIgnoreCase(type)).findFirst()
-                .orElseThrow(() -> new ShapeNotSupportedException("Shape not supported! Handler not found!"));
+                .orElseThrow(() -> new ShapeNotSupportedException("HANDLER_NOT_FOUND"));
     }
 
     private ShapeHandler getHandler(long shapeId) {
         String type = shapeRepository.getTypeById(shapeId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Shape not found!"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "SHAPE_NOT_FOUND"));
         return getHandler(type);
     }
 }

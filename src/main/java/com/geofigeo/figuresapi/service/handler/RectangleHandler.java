@@ -53,7 +53,7 @@ public class RectangleHandler implements ShapeHandler {
         RectangleDto rectangleDto = mapToDto(savedRectangle);
 
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found!"));
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND"));
         user.addShape(savedRectangle);
 
         return rectangleDto;
@@ -63,7 +63,7 @@ public class RectangleHandler implements ShapeHandler {
     @Override
     public ShapeDto getSingle(long id) {
         Rectangle rectangle = rectangleRepository.findById(id)
-                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+                .orElseThrow(() -> new ShapeNotFoundException("SHAPE_NOT_FOUND"));
         return mapToDto(rectangle);
     }
 
@@ -71,7 +71,7 @@ public class RectangleHandler implements ShapeHandler {
     @Override
     public ShapeDto edit(EditShapeRequestDto request, String username) {
         Rectangle rectangle = rectangleRepository.findById(request.getId())
-                .orElseThrow(() -> new ShapeNotFoundException("Shape not found!"));
+                .orElseThrow(() -> new ShapeNotFoundException("SHAPE_NOT_FOUND"));
         double oldWidth = rectangle.getWidth();
         double oldHeight = rectangle.getHeight();
         rectangle.setWidth(request.getParams().get(0));
