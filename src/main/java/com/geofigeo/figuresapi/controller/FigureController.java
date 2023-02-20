@@ -21,6 +21,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 @RestController
 @RequestMapping("/api/v1/shapes")
 @RequiredArgsConstructor
@@ -32,7 +34,7 @@ public class FigureController {
     public ResponseEntity<ShapeDto> add(@RequestBody AddShapeRequestDto addShapeRequestDto,
                                         Principal principal) {
         ShapeDto responseDto = shapeManager.saveShape(addShapeRequestDto, principal.getName());
-        return ResponseEntity.ok(responseDto);
+        return new ResponseEntity<>(responseDto, CREATED);
     }
 
     @GetMapping()
