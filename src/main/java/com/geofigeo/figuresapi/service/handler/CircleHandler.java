@@ -1,6 +1,7 @@
 package com.geofigeo.figuresapi.service.handler;
 
 import com.geofigeo.figuresapi.abstraction.ChangeManager;
+import com.geofigeo.figuresapi.configuration.AppConstants;
 import com.geofigeo.figuresapi.dto.AddShapeRequestDto;
 import com.geofigeo.figuresapi.dto.CircleDto;
 import com.geofigeo.figuresapi.dto.EditShapeRequestDto;
@@ -87,6 +88,24 @@ public class CircleHandler implements ShapeHandler {
     @Override
     public List<ShapeChangeDto> getChanges(long id) {
         return changeManager.getChanges(id);
+    }
+
+    @Override
+    public List<ShapeDto> getFiltered(Map<String, String> searchParams) {
+        String type = searchParams.get("type") == null ? null : searchParams.get("type").toUpperCase();
+        String createdBy = searchParams.get("createdBy");
+        LocalDateTime createdAtFrom = searchParams.get("createdAtFrom") == null ? null :
+                LocalDateTime.parse(searchParams.get("createdAtFrom"), AppConstants.formatter);
+        LocalDateTime createdAtTo = searchParams.get("createdAtTo") == null ? null :
+                LocalDateTime.parse(searchParams.get("createdAtTo"), AppConstants.formatter);
+        Double radiusFrom = searchParams.get("radiusFrom") == null ? null :
+                Double.parseDouble(searchParams.get("radiusFrom"));
+        Double radiusTo = searchParams.get("radiusTo") == null ? null :
+                Double.parseDouble(searchParams.get("radiusTo"));
+
+        List<CircleDto> circles = circleRepository.getFilteredCircles(type, createdBy, createdAtFrom, createdAtTo,
+                radiusFrom, radiusTo).stream().map(this::mapToDto).toList();
+        return List.copyOf(circles);
     }
 
     private Circle createCircle(AddShapeRequestDto request, String username) {

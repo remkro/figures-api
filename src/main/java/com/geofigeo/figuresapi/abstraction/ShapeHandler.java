@@ -15,4 +15,5 @@ public interface ShapeHandler {
     ShapeDto getSingle(long id);
     ShapeDto edit(EditShapeRequestDto request, String username);
     List<ShapeChangeDto> getChanges(long id);
+    List<ShapeDto> getFiltered(Map<String, String> searchParams);
 }

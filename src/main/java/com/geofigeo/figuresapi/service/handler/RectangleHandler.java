@@ -1,6 +1,7 @@
 package com.geofigeo.figuresapi.service.handler;
 
 import com.geofigeo.figuresapi.abstraction.ChangeManager;
+import com.geofigeo.figuresapi.configuration.AppConstants;
 import com.geofigeo.figuresapi.dto.AddShapeRequestDto;
 import com.geofigeo.figuresapi.dto.EditShapeRequestDto;
 import com.geofigeo.figuresapi.dto.RectangleDto;
@@ -92,6 +93,28 @@ public class RectangleHandler implements ShapeHandler {
     @Override
     public List<ShapeChangeDto> getChanges(long id) {
         return changeManager.getChanges(id);
+    }
+
+    @Override
+    public List<ShapeDto> getFiltered(Map<String, String> searchParams) {
+        String type = searchParams.get("type") == null ? null : searchParams.get("type").toUpperCase();
+        String createdBy = searchParams.get("createdBy");
+        LocalDateTime createdAtFrom = searchParams.get("createdAtFrom") == null ? null :
+                LocalDateTime.parse(searchParams.get("createdAtFrom"), AppConstants.formatter);
+        LocalDateTime createdAtTo = searchParams.get("createdAtTo") == null ? null :
+                LocalDateTime.parse(searchParams.get("createdAtTo"), AppConstants.formatter);
+        Double widthFrom = searchParams.get("widthFrom") == null ? null :
+                Double.parseDouble(searchParams.get("widthFrom"));
+        Double widthTo = searchParams.get("widthTo") == null ? null :
+                Double.parseDouble(searchParams.get("widthTo"));
+        Double heightFrom = searchParams.get("heightFrom") == null ? null :
+                Double.parseDouble(searchParams.get("heightFrom"));
+        Double heightTo = searchParams.get("heightTo") == null ? null :
+                Double.parseDouble(searchParams.get("heightTo"));
+
+        List<RectangleDto> rectangles = rectangleRepository.getFilteredRectangles(type, createdBy, createdAtFrom,
+                createdAtTo, widthFrom, widthTo, heightFrom, heightTo).stream().map(this::mapToDto).toList();
+        return List.copyOf(rectangles);
     }
 
     private Rectangle createRectangle(AddShapeRequestDto request, String username) {

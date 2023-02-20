@@ -1,6 +1,7 @@
 package com.geofigeo.figuresapi.service.handler;
 
 import com.geofigeo.figuresapi.abstraction.ChangeManager;
+import com.geofigeo.figuresapi.configuration.AppConstants;
 import com.geofigeo.figuresapi.dto.AddShapeRequestDto;
 import com.geofigeo.figuresapi.dto.EditShapeRequestDto;
 import com.geofigeo.figuresapi.dto.ShapeChangeDto;
@@ -86,6 +87,24 @@ public class SquareHandler implements ShapeHandler {
     @Override
     public List<ShapeChangeDto> getChanges(long id) {
         return changeManager.getChanges(id);
+    }
+
+    @Override
+    public List<ShapeDto> getFiltered(Map<String, String> searchParams) {
+        String type = searchParams.get("type") == null ? null : searchParams.get("type").toUpperCase();
+        String createdBy = searchParams.get("createdBy");
+        LocalDateTime createdAtFrom = searchParams.get("createdAtFrom") == null ? null :
+                LocalDateTime.parse(searchParams.get("createdAtFrom"), AppConstants.formatter);
+        LocalDateTime createdAtTo = searchParams.get("createdAtTo") == null ? null :
+                LocalDateTime.parse(searchParams.get("createdAtTo"), AppConstants.formatter);
+        Double heightFrom = searchParams.get("heightFrom") == null ? null :
+                Double.parseDouble(searchParams.get("heightFrom"));
+        Double heightTo = searchParams.get("heightTo") == null ? null :
+                Double.parseDouble(searchParams.get("heightTo"));
+
+        List<SquareDto> squares = squareRepository.getFilteredSquares(type, createdBy, createdAtFrom,
+                createdAtTo, heightFrom, heightTo).stream().map(this::mapToDto).toList();
+        return List.copyOf(squares);
     }
 
     private Square createSquare(AddShapeRequestDto request, String username) {
