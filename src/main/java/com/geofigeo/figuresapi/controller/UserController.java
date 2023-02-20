@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<StatusDto> registerUser(@RequestBody SignUpRequestDto signUpDto) {
         userManager.createUser(signUpDto);
-        return ResponseEntity.ok(new StatusDto("User " + signUpDto.getUsername() + " registered successfully"));
+        return new ResponseEntity<>(new StatusDto("User " + signUpDto.getUsername() + " registered successfully"), CREATED);
     }
 
     @GetMapping
