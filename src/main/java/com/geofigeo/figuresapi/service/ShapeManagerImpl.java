@@ -53,25 +53,7 @@ public class ShapeManagerImpl implements ShapeManager {
     @Override
     public List<ShapeDto> getFilteredShapes(Map<String, String> searchParams) {
         List<ShapeDto> shapes = new ArrayList<>();
-        for (ShapeHandler handler : handlers) {
-            shapes.addAll(handler.getFiltered(searchParams));
-        }
-        if (searchParams.get("areaFrom") != null) {
-            shapes = shapes.stream()
-                    .filter(s -> s.getArea() >= Double.parseDouble(searchParams.get("areaFrom"))).toList();
-        }
-        if (searchParams.get("areaTo") != null) {
-            shapes = shapes.stream()
-                    .filter(s -> s.getArea() <= Double.parseDouble(searchParams.get("areaFrom"))).toList();
-        }
-        if (searchParams.get("perimeterFrom") != null) {
-            shapes = shapes.stream()
-                    .filter(s -> s.getPerimeter() >= Double.parseDouble(searchParams.get("perimeterFrom"))).toList();
-        }
-        if (searchParams.get("perimeterTo") != null) {
-            shapes = shapes.stream()
-                    .filter(s -> s.getPerimeter() <= Double.parseDouble(searchParams.get("perimeterTo"))).toList();
-        }
+        handlers.forEach(h -> shapes.addAll(h.getFiltered(searchParams)));
         return shapes;
     }
 
