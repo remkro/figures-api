@@ -111,9 +111,18 @@ public class RectangleHandler implements ShapeHandler {
                 Double.parseDouble(searchParams.get("heightFrom"));
         Double heightTo = searchParams.get("heightTo") == null ? null :
                 Double.parseDouble(searchParams.get("heightTo"));
+        Double areaFrom = searchParams.get("areaFrom") == null ? null :
+                Double.parseDouble(searchParams.get("areaFrom"));
+        Double areaTo = searchParams.get("areaTo") == null ? null :
+                Double.parseDouble(searchParams.get("areaTo"));
+        Double perimeterFrom = searchParams.get("perimeterFrom") == null ? null :
+                Double.parseDouble(searchParams.get("perimeterFrom"));
+        Double perimeterTo = searchParams.get("perimeterTo") == null ? null :
+                Double.parseDouble(searchParams.get("perimeterTo"));
 
         List<RectangleDto> rectangles = rectangleRepository.getFilteredRectangles(type, createdBy, createdAtFrom,
-                createdAtTo, widthFrom, widthTo, heightFrom, heightTo).stream().map(this::mapToDto).toList();
+                createdAtTo, widthFrom, widthTo, heightFrom, heightTo, areaFrom, areaTo, perimeterFrom, perimeterTo)
+                .stream().map(this::mapToDto).toList();
         return List.copyOf(rectangles);
     }
 

@@ -102,9 +102,18 @@ public class CircleHandler implements ShapeHandler {
                 Double.parseDouble(searchParams.get("radiusFrom"));
         Double radiusTo = searchParams.get("radiusTo") == null ? null :
                 Double.parseDouble(searchParams.get("radiusTo"));
+        Double areaFrom = searchParams.get("areaFrom") == null ? null :
+                Double.parseDouble(searchParams.get("areaFrom"));
+        Double areaTo = searchParams.get("areaTo") == null ? null :
+                Double.parseDouble(searchParams.get("areaTo"));
+        Double perimeterFrom = searchParams.get("perimeterFrom") == null ? null :
+                Double.parseDouble(searchParams.get("perimeterFrom"));
+        Double perimeterTo = searchParams.get("perimeterTo") == null ? null :
+                Double.parseDouble(searchParams.get("perimeterTo"));
 
         List<CircleDto> circles = circleRepository.getFilteredCircles(type, createdBy, createdAtFrom, createdAtTo,
-                radiusFrom, radiusTo).stream().map(this::mapToDto).toList();
+                radiusFrom, radiusTo, areaFrom, areaTo, perimeterFrom, perimeterTo)
+                .stream().map(this::mapToDto).toList();
         return List.copyOf(circles);
     }
 

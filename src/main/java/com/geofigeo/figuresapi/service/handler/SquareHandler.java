@@ -101,9 +101,18 @@ public class SquareHandler implements ShapeHandler {
                 Double.parseDouble(searchParams.get("heightFrom"));
         Double heightTo = searchParams.get("heightTo") == null ? null :
                 Double.parseDouble(searchParams.get("heightTo"));
+        Double areaFrom = searchParams.get("areaFrom") == null ? null :
+                Double.parseDouble(searchParams.get("areaFrom"));
+        Double areaTo = searchParams.get("areaTo") == null ? null :
+                Double.parseDouble(searchParams.get("areaTo"));
+        Double perimeterFrom = searchParams.get("perimeterFrom") == null ? null :
+                Double.parseDouble(searchParams.get("perimeterFrom"));
+        Double perimeterTo = searchParams.get("perimeterTo") == null ? null :
+                Double.parseDouble(searchParams.get("perimeterTo"));
 
         List<SquareDto> squares = squareRepository.getFilteredSquares(type, createdBy, createdAtFrom,
-                createdAtTo, heightFrom, heightTo).stream().map(this::mapToDto).toList();
+                createdAtTo, heightFrom, heightTo, areaFrom, areaTo, perimeterFrom, perimeterTo)
+                .stream().map(this::mapToDto).toList();
         return List.copyOf(squares);
     }
 
