@@ -119,7 +119,8 @@ public class SquareHandler implements ShapeHandler {
     private Square createSquare(AddShapeRequestDto request, String username) {
         Square square = new Square();
         square.setType(getShapeName());
-        square.setCreatedBy(username);
+        square.setCreatedBy(userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND")));
         square.setCreatedAt(LocalDateTime.now());
         square.setLastModifiedAt(LocalDateTime.now());
         square.setLastModifiedBy(username);
@@ -129,6 +130,7 @@ public class SquareHandler implements ShapeHandler {
 
     private SquareDto mapToDto(Square square) {
         SquareDto squareDto = modelMapper.map(square, SquareDto.class);
+        squareDto.setCreatedBy(square.getCreatedBy().getUsername());
         squareDto.setArea(calculateArea(square.getHeight()));
         squareDto.setPerimeter(calculatePerimeter(square.getHeight()));
         return squareDto;

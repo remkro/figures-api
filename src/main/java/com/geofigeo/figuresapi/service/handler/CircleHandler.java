@@ -120,7 +120,8 @@ public class CircleHandler implements ShapeHandler {
     private Circle createCircle(AddShapeRequestDto request, String username) {
         Circle circle = new Circle();
         circle.setType(getShapeName());
-        circle.setCreatedBy(username);
+        circle.setCreatedBy(userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND")));
         circle.setCreatedAt(LocalDateTime.now());
         circle.setLastModifiedAt(LocalDateTime.now());
         circle.setLastModifiedBy(username);
@@ -130,6 +131,7 @@ public class CircleHandler implements ShapeHandler {
 
     private CircleDto mapToDto(Circle circle) {
         CircleDto circleDto = modelMapper.map(circle, CircleDto.class);
+        circleDto.setCreatedBy(circle.getCreatedBy().getUsername());
         circleDto.setArea(calculateArea(circle.getRadius()));
         circleDto.setPerimeter(calculatePerimeter(circle.getRadius()));
         return circleDto;

@@ -129,7 +129,8 @@ public class RectangleHandler implements ShapeHandler {
     private Rectangle createRectangle(AddShapeRequestDto request, String username) {
         Rectangle rectangle = new Rectangle();
         rectangle.setType(getShapeName());
-        rectangle.setCreatedBy(username);
+        rectangle.setCreatedBy(userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("USERNAME_NOT_FOUND")));
         rectangle.setCreatedAt(LocalDateTime.now());
         rectangle.setLastModifiedAt(LocalDateTime.now());
         rectangle.setLastModifiedBy(username);
@@ -140,6 +141,7 @@ public class RectangleHandler implements ShapeHandler {
 
     private RectangleDto mapToDto(Rectangle rectangle) {
         RectangleDto rectangleDto = modelMapper.map(rectangle, RectangleDto.class);
+        rectangleDto.setCreatedBy(rectangle.getCreatedBy().getUsername());
         rectangleDto.setArea(calculateArea(rectangle.getWidth(), rectangle.getHeight()));
         rectangleDto.setPerimeter(calculatePerimeter(rectangle.getWidth(), rectangle.getHeight()));
         return rectangleDto;
