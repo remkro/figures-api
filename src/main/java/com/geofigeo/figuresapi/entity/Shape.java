@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.Getter;
@@ -31,7 +33,9 @@ public class Shape {
     private long id;
     @Column(insertable = false, updatable = false)
     private String type;
-    private String createdBy;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User createdBy;
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
     private String lastModifiedBy;
