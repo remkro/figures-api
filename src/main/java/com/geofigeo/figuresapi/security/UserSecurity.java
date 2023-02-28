@@ -11,7 +11,7 @@ public class UserSecurity {
     private final ShapeRepository shapeRepository;
 
     public boolean isResourceCreator(Long shapeId) {
-        return shapeRepository.getCreatedByById(shapeId).map(username -> SecurityContextHolder.getContext()
+        return shapeRepository.getCreatedByUsernameById(shapeId).map(username -> SecurityContextHolder.getContext()
                 .getAuthentication().getName().equalsIgnoreCase(username)).orElse(false);
     }
 }

@@ -1,36 +1,31 @@
 package com.geofigeo.figuresapi.service;
 
+import com.geofigeo.figuresapi.abstraction.UserManager;
 import com.geofigeo.figuresapi.dto.SignUpRequestDto;
 import com.geofigeo.figuresapi.dto.UserDto;
 import com.geofigeo.figuresapi.entity.Role;
 import com.geofigeo.figuresapi.entity.User;
 import com.geofigeo.figuresapi.exception.EmailAlreadyTakenException;
 import com.geofigeo.figuresapi.exception.UserAlreadyTakenException;
-import com.geofigeo.figuresapi.abstraction.UserManager;
 import com.geofigeo.figuresapi.repository.RoleRepository;
 import com.geofigeo.figuresapi.repository.UserRepository;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Profile("prod")
 @Component
 @RequiredArgsConstructor
-public class UserManagerImpl implements UserManager {
+public class UserManagerProdImpl implements UserManager {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
-
-    @PostConstruct
-    private void initRoles() {
-        roleRepository.save(new Role("CREATOR"));
-        roleRepository.save(new Role("ADMIN"));
-    }
 
     @Transactional
     public User createUser(SignUpRequestDto signUpDto) {
