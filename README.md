@@ -10,7 +10,7 @@ This api allows you to manage shapes. By default it supports three shapes: circl
 There is an endpoint for user registration available for everyone, the other endpoints are secured with jwt token. User can add new shapes to the system. 
 User default role is CREATOR, but there is also a role ADMIN. 
 
-User can add shapes to the system, providing shape type and its parameters (like radius, width, height etc.) available for users with role CREATOR. The system returns created resource with provided data and also with calculated values of area and perimeter.
+User can add shapes to the system, providing shape type and its parameters (like radius, width, height etc.) - endpoint available for users with role CREATOR. The system returns created resource with provided data and also with calculated values of area and perimeter.
 
 Users can perform complex filtered search of shapes by multimple parameters, for example: 
 
