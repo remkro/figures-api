@@ -74,12 +74,12 @@ class ChangeManagerImplTest {
         Mockito.verify(changeRepository).saveAndFlush(changeCaptor.capture());
         Change savedChange = changeCaptor.getValue();
 
-        //Assert that expected and actual values are equal
-        assertEquals(savedChange.getShapeId(), editedShape.getId());
-        assertEquals(savedChange.getLastModifiedBy(), editedShape.getLastModifiedBy());
-        assertEquals(savedChange.getLastModifiedAt(), editedShape.getLastModifiedAt());
-        assertEquals(savedChange.getAuthor(), List.of("CREATOR"));
-        assertEquals(savedChange.getChangedValues(), oldProperties);
+        // Verify results
+        assertEquals(editedShape.getId(), savedChange.getShapeId());
+        assertEquals(editedShape.getLastModifiedBy(), savedChange.getLastModifiedBy());
+        assertEquals(editedShape.getLastModifiedAt(), savedChange.getLastModifiedAt());
+        assertEquals(List.of("CREATOR"), savedChange.getAuthor());
+        assertEquals(oldProperties, savedChange.getChangedValues());
     }
 
     @Test
@@ -99,19 +99,19 @@ class ChangeManagerImplTest {
         ShapeChangeDto dto1 = new ShapeChangeDto();
         ShapeChangeDto dto2 = new ShapeChangeDto();
 
-        //Mock modelMapper to return DTO objects
+        // Mock modelMapper to return DTO objects
         Mockito.when(modelMapper.map(change1, ShapeChangeDto.class)).thenReturn(dto1);
         Mockito.when(modelMapper.map(change2, ShapeChangeDto.class)).thenReturn(dto2);
 
-        //Mock the changeRepository to return prepared changes
+        // Mock the changeRepository to return prepared changes
         Mockito.when(changeRepository.findAllByShapeId(shapeId)).thenReturn(changes);
 
         // Call the getChanges() method
         List<ShapeChangeDto> result = changeManager.getChanges(shapeId);
 
-        //Assert that expected and actual values are equal
-        assertEquals(result.size(), 2);
-        assertEquals(result.get(0), dto1);
-        assertEquals(result.get(1), dto2);
+        // Assert that expected and actual values are equal
+        assertEquals(2, result.size());
+        assertEquals(dto1, result.get(0));
+        assertEquals(dto2, result.get(1));
     }
 }
