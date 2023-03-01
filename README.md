@@ -28,9 +28,11 @@ There is also the endpoint to get all users (with pagination) and each resource 
 <li>JWT Token authentication</h2>
 <li>H2 (development)</li>
 <li>PostgreSQL (production)</li>
+<li>Flyway</li>
 <li>JUnit 5 (unit tests)</li>
 <li>Testcontainers (integration tests)</li>
 <li>Docker</li>
+<li>Maven</li>
 </ul>
 
 <h2>Work in progress</h2>
