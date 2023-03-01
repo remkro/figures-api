@@ -16,7 +16,7 @@ Users can perform complex filtered search of shapes by multimple parameters, for
 
 <code>createdBy=...&type=...&areaFrom=...&areaTo...&perimeterFrom=...&perimeterTo=...&widthFrom=...&widthTo=...&radiusFrom=...&radiusTo=...</code>
 
-Users can modify shapes and the endpoint is available only for ADMIN and user who created particular shape. The system saves information about each change, storing data like date of change, who made change, old valus and new values etc.
+Users can modify shapes and the endpoint is available only for ADMIN and user who created particular shape. The system saves information about each change, storing data like date of change, who made change, old values and new values etc.
 
 There is also the endpoint to get all users (with pagination) and each resource has basic data about user like username, email, sign-up date, roles, number of shapes created. 
 
