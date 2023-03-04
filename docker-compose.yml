@@ -1,0 +1,23 @@
+version: '3.1'
+services:
+  API:
+    image: 'figures-api-docker.jar'
+    build: ./
+    ports:
+      - "8080:8081"
+    depends_on:
+      - PostgreSQL
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://PostgreSQL:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  PostgreSQL:
+    image: postgres
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
