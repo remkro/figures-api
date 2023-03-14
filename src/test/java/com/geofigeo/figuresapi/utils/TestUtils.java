@@ -12,4 +12,8 @@ public class TestUtils {
         request.setPassword("password123");
         return request;
     }
+
+    public static String getTokenFromJson(String json) {
+        return json.substring(13).replaceAll("\\\"}", "");
+    }
 }
