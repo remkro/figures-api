@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.geofigeo.figuresapi.FiguresApiApplication;
 import com.geofigeo.figuresapi.dto.SignUpRequestDto;
 import com.geofigeo.figuresapi.repository.UserRepository;
+import com.geofigeo.figuresapi.utils.TestUtils;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,42 +32,42 @@ class UserControllerIntegrationTest {
     @MockBean
     private UserRepository userRepository;
 
+    @AfterEach
+    void clean() {
+        userRepository.deleteAll();
+    }
+
     @Test
     void should_add_user() throws Exception {
-        SignUpRequestDto request = createSignUpRequest();
-        String addUserRequest = mapper.writeValueAsString(request);
+        // Create sign up request DTO
+        SignUpRequestDto signUpRequestDto = TestUtils.createSignUpRequest();
+        String signUpRequestDtoAsString = mapper.writeValueAsString(signUpRequestDto);
 
+        // Send sign up request and confirm user creation
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(addUserRequest))
+                        .content(signUpRequestDtoAsString))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.status").value("User " + request.getUsername()
+                .andExpect(jsonPath("$.status").value("User " + signUpRequestDto.getUsername()
                         + " registered successfully"));
     }
 
     @Test
     void should_failing_adding_user_when_same_username_exists() throws Exception {
-        SignUpRequestDto request = createSignUpRequest();
-        String addUserRequest = mapper.writeValueAsString(request);
+        // Create sign up request DTO
+        SignUpRequestDto signUpRequestDto = TestUtils.createSignUpRequest();
+        String signUpRequestDtoAsString = mapper.writeValueAsString(signUpRequestDto);
 
-        Mockito.when(userRepository.existsWithLockingByUsername(request.getUsername())).thenReturn(true);
+        // Fake behaviour that user already exists
+        Mockito.when(userRepository.existsWithLockingByUsername(signUpRequestDto.getUsername())).thenReturn(true);
 
+        // Send sign up request and confirm failing to add user with username that already exists
         mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(addUserRequest))
+                        .content(signUpRequestDtoAsString))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value("USERNAME_ALREADY_TAKEN"));
-    }
-
-    private SignUpRequestDto createSignUpRequest() {
-        SignUpRequestDto request = new SignUpRequestDto();
-        request.setFirstName("John");
-        request.setLastName("Smith");
-        request.setUsername("jsmith");
-        request.setEmail("jsmith@gmail.com");
-        request.setPassword("password123");
-        return request;
     }
 }
