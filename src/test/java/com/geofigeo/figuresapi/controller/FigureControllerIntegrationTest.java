@@ -1,7 +1,6 @@
 package com.geofigeo.figuresapi.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.geofigeo.figuresapi.FiguresApiApplication;
+import com.geofigeo.figuresapi.BaseIntegrationTest;
 import com.geofigeo.figuresapi.dto.AddShapeRequestDto;
 import com.geofigeo.figuresapi.dto.EditShapeRequestDto;
 import com.geofigeo.figuresapi.dto.JwtRequestDto;
@@ -14,11 +13,7 @@ import com.geofigeo.figuresapi.utils.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -29,20 +24,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = FiguresApiApplication.class)
-@AutoConfigureMockMvc
-@ActiveProfiles("dev")
-class FigureControllerIntegrationTest {
+class FigureControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
-    private MockMvc mockMvc;
+    private ShapeRepository shapeRepository;
     @Autowired
-    private ObjectMapper mapper;
+    private UserRepository userRepository;
     @Autowired
-    ShapeRepository shapeRepository;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    ChangeRepository changeRepository;
+    private ChangeRepository changeRepository;
 
     @AfterEach
     void clean() {

@@ -51,10 +51,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChainDev(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests()
-                .requestMatchers("/h2-console/**").permitAll()
+                //.requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/v1/users/register").permitAll()
                 .requestMatchers("/api/v1/authenticate").permitAll()
-                .requestMatchers(toH2Console()).permitAll()
+                //.requestMatchers(toH2Console()).permitAll()
+                .and()
+                .authorizeHttpRequests()
+                .anyRequest()
+                .authenticated()
+                .and()
+                .csrf().disable()
+                .headers().frameOptions().disable()
+                .and().exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+
+    @Profile("test")
+    @Bean
+    public SecurityFilterChain filterChainTest(HttpSecurity http) throws Exception {
+        http.authorizeHttpRequests()
+                .requestMatchers("/api/v1/users/register").permitAll()
+                .requestMatchers("/api/v1/authenticate").permitAll()
                 .and()
                 .authorizeHttpRequests()
                 .anyRequest()
